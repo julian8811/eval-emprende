@@ -173,7 +173,7 @@
         </div>
 
         <h3>Resumen por Dimensión</h3>
-        <table class="dimension-table" style="margin-top: 1rem;">
+        <table class="dimension-table" style="margin-top: 1rem; margin-bottom: 3rem;">
             <thead>
                 <tr>
                     <th>Dimensión</th>
@@ -187,6 +187,38 @@
                 <!-- Rows injected via JS -->
             </tbody>
         </table>
+
+        <h3>Detalle de Criterios y Hallazgos</h3>
+        <table class="dimension-table" style="margin-top: 1rem; margin-bottom: 3rem; font-size: 0.85rem;">
+            <thead>
+                <tr>
+                    <th>Criterio</th>
+                    <th>Cal.</th>
+                    <th>Hallazgos / Recomendaciones</th>
+                </tr>
+            </thead>
+            <tbody id="criteria-detail-body">
+                <!-- Rows injected via JS -->
+            </tbody>
+        </table>
+
+        <div id="plan-section" style="display: none;">
+            <h3>Plan de Mejora Propuesto</h3>
+            <table class="dimension-table" style="margin-top: 1rem;">
+                <thead>
+                    <tr>
+                        <th>Acción</th>
+                        <th>Dimensión</th>
+                        <th>Responsable</th>
+                        <th>Prioridad</th>
+                        <th>Plazos</th>
+                    </tr>
+                </thead>
+                <tbody id="plan-table-body">
+                    <!-- Rows injected via JS -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script src="app.js"></script>
@@ -203,12 +235,12 @@
         // Interpretation logic
         const p = latestEval.promedioGeneral;
         let text = "";
-        if (p >= 4) text = "¡Excelente! El emprendimiento muestra una madurez sólida en la mayoría de sus dimensiones. Se recomienda enfocarse en escalar y optimizar procesos menores.";
-        else if (p >= 3) text = "El emprendimiento se encuentra en una etapa de consolidación. Existen áreas de oportunidad claras que deben ser atendidas para asegurar la sostenibilidad.";
-        else text = "Atención: Se identifican debilidades críticas en dimensiones fundamentales. Es imperativo ejecutar el plan de mejora de alta prioridad de inmediato.";
+        if (p >= 4) text = "¡Excelente! El emprendimiento muestra una madurez sólida. Se recomienda optimizar procesos.";
+        else if (p >= 3) text = "Consolidación: Existen áreas de oportunidad que deben ser atendidas.";
+        else text = "Atención: Se identifican debilidades críticas que requieren acción inmediata.";
         document.getElementById('interpretation-text').innerText = text;
 
-        // Table
+        // Table Resumen
         const tbody = document.getElementById('results-table-body');
         latestEval.results.forEach(r => {
             const row = document.createElement('tr');
@@ -222,22 +254,59 @@
             tbody.appendChild(row);
         });
 
+        // Detalle Criterios
+        const detailBody = document.getElementById('criteria-detail-body');
+        DIMENSIONES.forEach(dim => {
+            dim.criterios.forEach((crit, i) => {
+                const cal = latestEval.data[`cal_${dim.id}_${i}`];
+                const hall = latestEval.data[`hall_${dim.id}_${i}`] || '-';
+                const rec = latestEval.data[`rec_${dim.id}_${i}`] || '-';
+                if (cal) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${crit}</strong><br><small style="color:var(--text-muted)">${dim.nombre}</small></td>
+                        <td style="text-align:center; font-weight:bold;">${cal}</td>
+                        <td>
+                            <div style="margin-bottom:0.5rem;"><strong>Hallazgo:</strong> ${hall}</div>
+                            <div><strong>Rec:</strong> ${rec}</div>
+                        </td>
+                    `;
+                    detailBody.appendChild(row);
+                }
+            });
+        });
+
+        // Plan de Mejora
+        if (latestEval.planMejora && latestEval.planMejora.length > 0) {
+            document.getElementById('plan-section').style.display = 'block';
+            const planBody = document.getElementById('plan-table-body');
+            latestEval.planMejora.forEach(p => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${p.accion}</strong></td>
+                    <td>${p.dimension}</td>
+                    <td>${p.responsable}</td>
+                    <td><span class="priority-badge priority-${p.prioridad}">${p.prioridad}</span></td>
+                    <td>${p.inicio || '-'} a ${p.fin || '-'}</td>
+                `;
+                planBody.appendChild(row);
+            });
+        }
+
         // Chart
         const ctx = document.getElementById('radarChart');
         new Chart(ctx, {
             type: 'radar',
             data: {
-                labels: latestEval.results.map(r => r.nombre.split(' ')[0]),
+                labels: latestEval.results.map(r => r.nombre),
                 datasets: [{
-                    label: 'Puntaje',
+                    label: 'Promedio por Dimensión',
                     data: latestEval.results.map(r => r.promedio),
                     fill: true,
                     backgroundColor: 'rgba(13, 148, 136, 0.2)',
                     borderColor: '#0D9488',
                     pointBackgroundColor: '#0D9488',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: '#0D9488'
+                    borderWidth: 3
                 }]
             },
             options: {
@@ -246,8 +315,11 @@
                         angleLines: { display: true },
                         suggestedMin: 0,
                         suggestedMax: 5,
-                        ticks: { stepSize: 1 }
+                        ticks: { stepSize: 1, display: false }
                     }
+                },
+                plugins: {
+                    legend: { display: false }
                 }
             }
         });
