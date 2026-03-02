@@ -119,9 +119,33 @@
 
 <body>
     <div class="premium-container">
-        <div class="no-print" style="margin-bottom: 2rem; display: flex; justify-content: space-between;">
-            <a href="index.html" style="text-decoration: none; color: var(--primary); font-weight: 600;">← Inicio</a>
-            <button onclick="window.print()" class="btn-premium btn-primary">🖨️ Descargar Reporte PDF</button>
+        <div class="no-print"
+            style="margin-bottom: 2rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <a href="index.html"
+                style="text-decoration: none; color: var(--primary); font-weight: 600; margin-right: auto;">← Inicio</a>
+
+            <form action="https://formsubmit.co/consultor.ceitto@colmayor.edu.co" method="POST" target="_blank"
+                style="margin: 0; display: flex;">
+                <!-- Opciones de FormSubmit -->
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_subject" value="Nuevo Diagnóstico: EvalEmprende">
+                <input type="hidden" name="_template" value="table">
+
+                <!-- Campos de Datos Reales -->
+                <input type="hidden" name="Emprendimiento" id="email-emprendimiento">
+                <input type="hidden" name="Responsable" id="email-responsable">
+                <input type="hidden" name="Correo_Contacto" id="email-correo">
+                <input type="hidden" name="Puntaje_Total" id="email-puntaje">
+                <textarea name="Detalle_Evaluacion" id="email-detalle" style="display:none;"></textarea>
+
+                <button type="submit" class="btn-premium"
+                    style="background: white; color: var(--primary); border: 2px solid var(--primary); font-size: 0.9rem; padding: 0.6rem 1rem;">
+                    ✉️ Enviar copia a CEITTO
+                </button>
+            </form>
+
+            <button onclick="window.print()" class="btn-premium btn-primary"
+                style="font-size: 0.9rem; padding: 0.6rem 1rem;">🖨️ Descargar PDF</button>
         </div>
 
         <div class="results-header">
@@ -239,6 +263,28 @@
         else if (p >= 3) text = "Consolidación: Existen áreas de oportunidad que deben ser atendidas.";
         else text = "Atención: Se identifican debilidades críticas que requieren acción inmediata.";
         document.getElementById('interpretation-text').innerText = text;
+
+        // Setup Email Form
+        document.getElementById('email-emprendimiento').value = latestEval.data.nombre_emprendimiento;
+        document.getElementById('email-responsable').value = latestEval.data.nombre_responsable;
+        document.getElementById('email-correo').value = latestEval.data.correo;
+        document.getElementById('email-puntaje').value = latestEval.promedioGeneral;
+
+        let emailText = `Fecha de Evaluación: ${new Date(latestEval.timestamp).toLocaleDateString()}\n\n`;
+        emailText += `--- RESUMEN POR DIMENSIÓN ---\n`;
+        latestEval.results.forEach(r => {
+            emailText += `• ${r.nombre}: ${r.promedio} / 5.0 (Prioridad de Mejora: ${r.prioridad})\n`;
+        });
+
+        emailText += `\n--- DETALLE DE HALLAZGOS Y PLAN DE MEJORA ---\n`;
+        if (latestEval.planMejora && latestEval.planMejora.length > 0) {
+            latestEval.planMejora.forEach(p => {
+                emailText += `👉 Acción: ${p.accion} | Responsable: ${p.responsable} | Prioridad: ${p.prioridad} | Termina: ${p.fin || 'N/A'}\n`;
+            });
+        } else {
+            emailText += `No se registraron acciones inmediatas de mejora.\n`;
+        }
+        document.getElementById('email-detalle').value = emailText;
 
         // Table Resumen
         const tbody = document.getElementById('results-table-body');
