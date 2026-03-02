@@ -86,6 +86,45 @@ const DIMENSIONES = [
     },
 ];
 
+const RECOMENDACIONES_INTELIGENTES = {
+    "propuesta_valor": [
+        "Revisa tu Segmento de Clientes: Asegúrate de que el problema que resuelves es un 'dolor' real para ellos.",
+        "Aplica metodologías como Design Thinking o Lean Startup para iterar sobre tu prototipo.",
+        "Define tu 'Unique Selling Proposition' (USP) para diferenciarte radicalmente de tus competidores."
+    ],
+    "mercado_cliente": [
+        "Implementa métricas de Adquisición de Clientes (CAC) y Valor del Ciclo de Vida (LTV).",
+        "Diversifica tus canales de tracción y haz pruebas A/B en tus campañas de marketing.",
+        "Realiza entrevistas de desarrollo de clientes (Customer Discovery) de forma constante."
+    ],
+    "operacion": [
+        "Mapea el Viaje del Cliente (Customer Journey) para encontrar y eliminar fricciones operativas.",
+        "Considera herramientas de automatización o digitalización para reducir cuellos de botella.",
+        "Establece Indicadores Clave de Rendimiento (KPIs) claros para tu área de producción/operación."
+    ],
+    "diseno_experiencia": [
+        "Innova en el empaque o en los puntos de contacto digitales enfocados en la experiencia UX/UI.",
+        "Implementa un sistema de retroalimentación de clientes (NPS) para medir la satisfacción.",
+        "Revisa guías de accesibilidad universal para ampliar tu alcance."
+    ],
+    "comercializacion": [
+        "Optimiza el embudo de ventas (Sales Funnel) identificando dónde pierdes leads.",
+        "Implementa un CRM (Customer Relationship Management) para seguimiento automatizado.",
+        "Potencia tu estrategia de contenidos y prueba micro-pautas en redes clave de tu nicho."
+    ],
+    "sostenibilidad": [
+        "Adopta principios de Economía Circular en al menos el 10% de tu proceso productivo.",
+        "Mide tu huella de carbono básica y establece un plan de mitigación.",
+        "Busca certificaciones como 'Sistema B' o ambientales alineadas a tu sector."
+    ],
+    "legal_riesgos": [
+        "Consulta esquemas de formalización tributaria simplificada y régimen simple.",
+        "Protege tus activos intangibles registrando la marca comercial y secretos industriales.",
+        "Diseña una matriz de riesgos simple (Probabilidad vs Impacto) y asigna responsables."
+    ]
+};
+
+
 class EvalEngine {
     constructor() {
         this.currentEval = this.loadCurrent() || {};
@@ -150,6 +189,25 @@ class EvalEngine {
 
         const promedioGeneral = Math.round((sumaPesos / 100) * 100) / 100;
 
+        // Calculate Strengths and Weaknesses
+        const sortedResults = [...results].sort((a, b) => b.promedio - a.promedio);
+        const fortalezas = sortedResults.slice(0, 2);
+        const debilidades = sortedResults.slice(-2);
+
+        // Generate Intelligent Recommendations (where score < 4)
+        let recsInteligentes = [];
+        results.forEach(r => {
+            if (r.promedio < 4) {
+                // Pick a random recommendation for this dimension to simulate "AI" variability
+                const possibleRecs = RECOMENDACIONES_INTELIGENTES[r.id];
+                const rec = possibleRecs[Math.floor(Math.random() * possibleRecs.length)];
+                recsInteligentes.push({
+                    dimension: r.nombre,
+                    consejo: rec
+                });
+            }
+        });
+
         // Capture Improvement Plan data
         const planMejora = [];
         for (let i = 0; i < 8; i++) {
@@ -173,7 +231,10 @@ class EvalEngine {
             results,
             totalPonderado,
             promedioGeneral,
-            planMejora
+            planMejora,
+            fortalezas,
+            debilidades,
+            recsInteligentes
         };
     }
 

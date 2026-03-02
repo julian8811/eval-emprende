@@ -114,6 +114,80 @@
                 padding: 0;
             }
         }
+
+        /* Nuevos Estilos Visuales */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary);
+            transition: width 1s ease-in-out;
+        }
+
+        .sw-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .sw-card {
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            background: white;
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid;
+        }
+
+        .sw-card.strengths {
+            border-left-color: #10b981;
+        }
+
+        .sw-card.weaknesses {
+            border-left-color: #ef4444;
+        }
+
+        .ai-recommendation-card {
+            background: linear-gradient(to right, rgba(99, 102, 241, 0.05), rgba(168, 85, 247, 0.05));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .ai-recommendation-card::before {
+            content: "✨ IA Insight";
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 99px;
+            text-transform: uppercase;
+        }
+
+        .badge-loading {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
     </style>
 </head>
 
@@ -124,25 +198,10 @@
             <a href="index.html"
                 style="text-decoration: none; color: var(--primary); font-weight: 600; margin-right: auto;">← Inicio</a>
 
-            <form action="https://formsubmit.co/consultor.ceitto@colmayor.edu.co" method="POST" target="_blank"
-                style="margin: 0; display: flex;">
-                <!-- Opciones de FormSubmit -->
-                <input type="hidden" name="_captcha" value="false">
-                <input type="hidden" name="_subject" value="Nuevo Diagnóstico: EvalEmprende">
-                <input type="hidden" name="_template" value="table">
-
-                <!-- Campos de Datos Reales -->
-                <input type="hidden" name="Emprendimiento" id="email-emprendimiento">
-                <input type="hidden" name="Responsable" id="email-responsable">
-                <input type="hidden" name="Correo_Contacto" id="email-correo">
-                <input type="hidden" name="Puntaje_Total" id="email-puntaje">
-                <textarea name="Detalle_Evaluacion" id="email-detalle" style="display:none;"></textarea>
-
-                <button type="submit" class="btn-premium"
-                    style="background: white; color: var(--primary); border: 2px solid var(--primary); font-size: 0.9rem; padding: 0.6rem 1rem;">
-                    ✉️ Enviar copia a CEITTO
-                </button>
-            </form>
+            <button id="send-email-btn" onclick="sendEmailReport()" class="btn-premium"
+                style="background: white; color: var(--primary); border: 2px solid var(--primary); font-size: 0.9rem; padding: 0.6rem 1rem;">
+                <span id="email-btn-text">✉️ Enviar copia a CEITTO</span>
+            </button>
 
             <button onclick="window.print()" class="btn-premium btn-primary"
                 style="font-size: 0.9rem; padding: 0.6rem 1rem;">🖨️ Descargar PDF</button>
@@ -175,15 +234,7 @@
                 </div>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 2rem;">
-                <div class="card"
-                    style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
-                    <h3>Interpretación</h3>
-                    <div id="interpretation-text"
-                        style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.7; margin-top: 1rem;">
-                        Analizando resultados...
-                    </div>
-                </div>
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
                 <div class="card"
                     style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
                     <h3>Puntaje Ponderado</h3>
@@ -193,7 +244,49 @@
                     <p style="font-size: 0.8rem; color: var(--text-muted);">Impacto total sobre el modelo de
                         sostenibilidad.</p>
                 </div>
+
+                <div class="card"
+                    style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border); flex: 1;">
+                    <h3>Interpretación</h3>
+                    <div id="interpretation-text"
+                        style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.7; margin-top: 0.5rem;">
+                        Analizando resultados...
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <div class="sw-container">
+            <div class="sw-card strengths">
+                <h4 style="color: #10b981; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    Principales Fortalezas
+                </h4>
+                <ul id="strengths-list"
+                    style="margin-left: 1.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-main);"></ul>
+            </div>
+            <div class="sw-card weaknesses">
+                <h4 style="color: #ef4444; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                        </path>
+                    </svg>
+                    Áreas Críticas a Mejorar
+                </h4>
+                <ul id="weaknesses-list"
+                    style="margin-left: 1.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-main);"></ul>
+            </div>
+        </div>
+
+        <div class="ai-recommendation-card" id="ai-recs-container" style="display: none;">
+            <h3 style="color: #4f46e5; margin-bottom: 1rem;">Estrategias Generadas para tu Emprendimiento</h3>
+            <ul id="ai-recs-list"
+                style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem;">
+            </ul>
         </div>
 
         <h3>Resumen por Dimensión</h3>
@@ -259,42 +352,122 @@
         // Interpretation logic
         const p = latestEval.promedioGeneral;
         let text = "";
-        if (p >= 4) text = "¡Excelente! El emprendimiento muestra una madurez sólida. Se recomienda optimizar procesos.";
-        else if (p >= 3) text = "Consolidación: Existen áreas de oportunidad que deben ser atendidas.";
-        else text = "Atención: Se identifican debilidades críticas que requieren acción inmediata.";
+        if (p >= 4) text = "¡Excelente! El emprendimiento muestra una madurez sólida. Se recomienda optimizar procesos y escalar operaciones.";
+        else if (p >= 3) text = "Consolidación: Existen áreas de oportunidad que deben ser atendidas para asegurar la sostenibilidad del modelo de negocio.";
+        else text = "Atención: Se identifican debilidades críticas corporativas. Es altamente imperativo ejecutar el plan de mejora de forma prioritaria.";
         document.getElementById('interpretation-text').innerText = text;
 
-        // Setup Email Form
-        document.getElementById('email-emprendimiento').value = latestEval.data.nombre_emprendimiento;
-        document.getElementById('email-responsable').value = latestEval.data.nombre_responsable;
-        document.getElementById('email-correo').value = latestEval.data.correo;
-        document.getElementById('email-puntaje').value = latestEval.promedioGeneral;
-
-        let emailText = `Fecha de Evaluación: ${new Date(latestEval.timestamp).toLocaleDateString()}\n\n`;
-        emailText += `--- RESUMEN POR DIMENSIÓN ---\n`;
-        latestEval.results.forEach(r => {
-            emailText += `• ${r.nombre}: ${r.promedio} / 5.0 (Prioridad de Mejora: ${r.prioridad})\n`;
+        // UI: Fortalezas y Debilidades
+        const sList = document.getElementById('strengths-list');
+        latestEval.fortalezas.forEach(f => {
+            sList.innerHTML += `<li><strong>${f.nombre}</strong> (${f.promedio} pts)</li>`;
         });
 
-        emailText += `\n--- DETALLE DE HALLAZGOS Y PLAN DE MEJORA ---\n`;
+        const wList = document.getElementById('weaknesses-list');
+        latestEval.debilidades.forEach(w => {
+            wList.innerHTML += `<li><strong>${w.nombre}</strong> (${w.promedio} pts)</li>`;
+        });
+
+        // UI: AI Insights
+        if (latestEval.recsInteligentes && latestEval.recsInteligentes.length > 0) {
+            document.getElementById('ai-recs-container').style.display = 'block';
+            const aiList = document.getElementById('ai-recs-list');
+            latestEval.recsInteligentes.forEach(rec => {
+                aiList.innerHTML += `
+                    <li style="background: white; padding: 1rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                        <strong style="color: var(--text-main); font-size: 0.85rem; text-transform: uppercase;">Para ${rec.dimension}:</strong>
+                        <p style="margin: 0.25rem 0 0 0; font-size: 0.95rem; color: var(--text-muted);">${rec.consejo}</p>
+                    </li>
+                `;
+            });
+        }
+
+        // Generate Text Payload for API
+        let emailTextPayload = `Diagnóstico de: ${latestEval.data.nombre_emprendimiento}\n`;
+        emailTextPayload += `Responsable: ${latestEval.data.nombre_responsable}\n`;
+        emailTextPayload += `Puntaje General: ${latestEval.promedioGeneral} / 5.0\n`;
+        emailTextPayload += `Puntaje Ponderado: ${latestEval.totalPonderado.toFixed(2)}\n\n`;
+
+        emailTextPayload += `--- RESUMEN POR DIMENSIÓN ---\n`;
+        latestEval.results.forEach(r => {
+            emailTextPayload += `• ${r.nombre}: ${r.promedio} (Prioridad: ${r.prioridad})\n`;
+        });
+
+        if (latestEval.recsInteligentes.length > 0) {
+            emailTextPayload += `\n--- RECOMENDACIONES AUTOMÁTICAS ESTRATÉGICAS ---\n`;
+            latestEval.recsInteligentes.forEach(rec => {
+                emailTextPayload += `• ${rec.dimension}: ${rec.consejo}\n`;
+            });
+        }
+
+        emailTextPayload += `\n--- PLAN DE MEJORA INMEDIATO ---\n`;
         if (latestEval.planMejora && latestEval.planMejora.length > 0) {
             latestEval.planMejora.forEach(p => {
-                emailText += `👉 Acción: ${p.accion} | Responsable: ${p.responsable} | Prioridad: ${p.prioridad} | Termina: ${p.fin || 'N/A'}\n`;
+                emailTextPayload += `👉 ${p.accion} (Responsable: ${p.responsable}, Fin: ${p.fin || 'N/A'})\n`;
             });
         } else {
-            emailText += `No se registraron acciones inmediatas de mejora.\n`;
+            emailTextPayload += `No se registraron acciones inmediatas.\n`;
         }
-        document.getElementById('email-detalle').value = emailText;
+
+        // Email Sending Logic via Fetch AJAX
+        async function sendEmailReport() {
+            const btn = document.getElementById('send-email-btn');
+            const btnText = document.getElementById('email-btn-text');
+
+            btn.disabled = true;
+            btnText.innerHTML = "Enviando... ⏳";
+
+            try {
+                const response = await fetch("https://formsubmit.co/ajax/consultor.ceitto@colmayor.edu.co", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Emprendimiento: latestEval.data.nombre_emprendimiento,
+                        Responsable: latestEval.data.nombre_responsable,
+                        Correo: latestEval.data.correo,
+                        "Puntaje Total": latestEval.promedioGeneral,
+                        "Reporte Detallado": emailTextPayload,
+                        _subject: "Nuevo Reporte de Emprendimiento: " + latestEval.data.nombre_emprendimiento
+                    })
+                });
+
+                if (response.ok) {
+                    btn.classList.add('badge-loading');
+                    btn.style.color = '#10b981';
+                    btn.style.borderColor = '#10b981';
+                    btnText.innerHTML = "✅ Enviado Exitosamente";
+                } else {
+                    throw new Error("No se pudo enviar");
+                }
+            } catch (error) {
+                alert("Hubo un error al enviar el correo. Por favor, revisa tu conexión.");
+                btn.disabled = false;
+                btnText.innerHTML = "✉️ Reintentar Envío a CEITTO";
+            }
+        }
 
         // Table Resumen
         const tbody = document.getElementById('results-table-body');
         latestEval.results.forEach(r => {
             const row = document.createElement('tr');
+
+            // Calculate width for progress bar
+            const percentWidth = (r.promedio / 5) * 100;
+            let barColor = "var(--primary)";
+            if (r.promedio < 3) barColor = "#ef4444";
+            else if (r.promedio < 4) barColor = "#f59e0b";
+
             row.innerHTML = `
-                <td style="font-weight:600">${r.nombre}</td>
+                <td>
+                    <div style="font-weight:600">${r.nombre}</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: ${percentWidth}%; background-color: ${barColor}"></div></div>
+                </td>
                 <td style="color:var(--text-muted)">${r.peso}%</td>
-                <td style="font-weight:700">${r.promedio}</td>
-                <td>${r.ponderado}</td>
+                <td style="font-weight:700; font-size: 1.1rem; color: ${barColor}">${r.promedio}</td>
+                <td style="color: var(--text-muted)">${r.ponderado}</td>
                 <td><span class="priority-badge priority-${r.prioridad}">${r.prioridad}</span></td>
             `;
             tbody.appendChild(row);
