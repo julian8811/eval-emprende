@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvalEmprende | Resultados</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .results-header {
+            background: white;
+            padding: 3rem;
+            border-radius: var(--radius-lg);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 20px rgba(13, 148, 136, 0.3);
+        }
+
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+
+        .dimension-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .dimension-table th {
+            background: #f8fafc;
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .dimension-table td {
+            padding: 1.25rem 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .priority-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .priority-Alta {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .priority-Media {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .priority-Baja {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        @media print {
+
+            .floating-nav,
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .premium-container {
+                max-width: 100%;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="premium-container">
+        <div class="no-print" style="margin-bottom: 2rem; display: flex; justify-content: space-between;">
+            <a href="index.html" style="text-decoration: none; color: var(--primary); font-weight: 600;">← Inicio</a>
+            <button onclick="window.print()" class="btn-premium btn-primary">🖨️ Descargar Reporte PDF</button>
+        </div>
+
+        <div class="results-header">
+            <div>
+                <h1 id="enterprise-name" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Cargando...</h1>
+                <p style="color: var(--text-muted);">Reporte de Diagnóstico Empresarial • <span id="eval-date"></span>
+                </p>
+                <div style="margin-top: 1.5rem; display: flex; gap: 2rem;">
+                    <div>
+                        <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted);">Responsable
+                        </div>
+                        <div id="responsible-name" style="font-weight: 600;">-</div>
+                    </div>
+                </div>
+            </div>
+            <div class="score-circle">
+                <div class="score-value" id="total-score">0.0</div>
+                <div class="score-label">Puntaje / 5.0</div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+            <div class="chart-card">
+                <h3>Mapa de Telaraña (Radar)</h3>
+                <div style="height: 400px; margin-top: 1rem;">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 2rem;">
+                <div class="card"
+                    style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
+                    <h3>Interpretación</h3>
+                    <div id="interpretation-text"
+                        style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.7; margin-top: 1rem;">
+                        Analizando resultados...
+                    </div>
+                </div>
+                <div class="card"
+                    style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
+                    <h3>Puntaje Ponderado</h3>
+                    <div id="weighted-total"
+                        style="font-size: 3rem; font-weight: 800; color: var(--secondary); margin-top: 0.5rem;">0.00
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Impacto total sobre el modelo de
+                        sostenibilidad.</p>
+                </div>
+            </div>
+        </div>
+
+        <h3>Resumen por Dimensión</h3>
+        <table class="dimension-table" style="margin-top: 1rem;">
+            <thead>
+                <tr>
+                    <th>Dimensión</th>
+                    <th>Peso</th>
+                    <th>Puntaje</th>
+                    <th>Ponderado</th>
+                    <th>Prioridad de Mejora</th>
+                </tr>
+            </thead>
+            <tbody id="results-table-body">
+                <!-- Rows injected via JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        const latestEval = JSON.parse(localStorage.getItem('eval_emprende_latest'));
+        if (!latestEval) window.location.href = 'index.html';
+
+        document.getElementById('enterprise-name').innerText = latestEval.data.nombre_emprendimiento;
+        document.getElementById('responsible-name').innerText = latestEval.data.nombre_responsable;
+        document.getElementById('eval-date').innerText = new Date(latestEval.timestamp).toLocaleDateString();
+        document.getElementById('total-score').innerText = latestEval.promedioGeneral;
+        document.getElementById('weighted-total').innerText = latestEval.totalPonderado.toFixed(2);
+
+        // Interpretation logic
+        const p = latestEval.promedioGeneral;
+        let text = "";
+        if (p >= 4) text = "¡Excelente! El emprendimiento muestra una madurez sólida en la mayoría de sus dimensiones. Se recomienda enfocarse en escalar y optimizar procesos menores.";
+        else if (p >= 3) text = "El emprendimiento se encuentra en una etapa de consolidación. Existen áreas de oportunidad claras que deben ser atendidas para asegurar la sostenibilidad.";
+        else text = "Atención: Se identifican debilidades críticas en dimensiones fundamentales. Es imperativo ejecutar el plan de mejora de alta prioridad de inmediato.";
+        document.getElementById('interpretation-text').innerText = text;
+
+        // Table
+        const tbody = document.getElementById('results-table-body');
+        latestEval.results.forEach(r => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="font-weight:600">${r.nombre}</td>
+                <td style="color:var(--text-muted)">${r.peso}%</td>
+                <td style="font-weight:700">${r.promedio}</td>
+                <td>${r.ponderado}</td>
+                <td><span class="priority-badge priority-${r.prioridad}">${r.prioridad}</span></td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        // Chart
+        const ctx = document.getElementById('radarChart');
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: latestEval.results.map(r => r.nombre.split(' ')[0]),
+                datasets: [{
+                    label: 'Puntaje',
+                    data: latestEval.results.map(r => r.promedio),
+                    fill: true,
+                    backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                    borderColor: '#0D9488',
+                    pointBackgroundColor: '#0D9488',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#0D9488'
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        angleLines: { display: true },
+                        suggestedMin: 0,
+                        suggestedMax: 5,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvalEmprende | Nueva Evaluación</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .eval-section {
+            background: white;
+            padding: 2.5rem;
+            border-radius: var(--radius-lg);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border-left: 6px solid var(--primary);
+        }
+
+        .info-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-field label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-field input,
+        .form-field select,
+        .form-field textarea {
+            padding: 0.75rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-field input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .criterion-item {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .criterion-label {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .rating-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .rating-box {
+            flex: 1;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .rating-box input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .rating-box span {
+            display: block;
+            text-align: center;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .rating-box input:checked+span {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .extra-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .extra-inputs {
+                grid-template-columns: 1fr;
+            }
+
+            .rating-group {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="premium-container">
+        <header style="margin-bottom: 3rem;">
+            <a href="index.html" style="text-decoration: none; color: var(--primary); font-weight: 600;">← Volver al
+                Inicio</a>
+            <h1 style="font-size: 2.5rem; margin-top: 1.5rem;">Cuestionario de Evaluación</h1>
+            <p style="color: var(--text-muted);">Completa todos los campos para generar el diagnóstico empresarial.</p>
+        </header>
+
+        <form id="evaluation-form">
+            <section class="eval-section" style="border-left-color: var(--secondary);">
+                <h3>1. Información General</h3>
+                <div class="info-group">
+                    <div class="form-field">
+                        <label>Nombre del Emprendimiento</label>
+                        <input type="text" name="nombre_emprendimiento" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Responsable</label>
+                        <input type="text" name="nombre_responsable" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Correo Electrónico</label>
+                        <input type="email" name="correo" required>
+                    </div>
+                </div>
+            </section>
+
+            <div id="dimensions-container">
+                <!-- Dimensions injected here via JS -->
+            </div>
+
+            <div style="text-align: center; padding: 4rem 0;">
+                <button type="submit" class="btn-premium btn-primary" style="font-size: 1.25rem; padding: 1rem 3rem;">
+                    🚀 Generar Evaluación Completa
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        engine.initEvaluationForm();
+
+        document.getElementById('evaluation-form').onsubmit = function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            // Handle radio buttons group names correctly
+            const radios = this.querySelectorAll('input[type="radio"]:checked');
+            radios.forEach(r => data[r.name] = r.value);
+
+            const result = engine.calculate(data);
+            engine.saveToHistory(result);
+            window.location.href = 'results.html';
+        };
+    </script>
+</body>
+
+</html>

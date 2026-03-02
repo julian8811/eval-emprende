@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvalEmprende | Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="premium-container">
+        <header class="hero-section">
+            <div class="logo-container" style="font-size: 4rem; margin-bottom: 1rem;">🚀</div>
+            <h1 class="hero-title">EvalEmprende</h1>
+            <p class="hero-subtitle">Elevando el potencial de los emprendedores de Colmayor a través de la excelencia en productos y servicios.</p>
+            <div style="margin-top: 2rem;">
+                <span style="background: rgba(255,255,255,0.2); padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600;">FT-EM-001 v1.0</span>
+            </div>
+        </header>
+
+        <main class="card-grid">
+            <a href="evaluation.html" class="premium-card">
+                <div class="card-icon" style="background: #e0f2fe; color: #0369a1;">📝</div>
+                <h3>Nueva Evaluación</h3>
+                <p>Inicia un diagnóstico detallado en las 7 dimensiones clave de tu negocio.</p>
+                <div style="margin-top: auto; font-weight: 600; color: var(--primary);">Comenzar →</div>
+            </a>
+
+            <a href="results.html" class="premium-card" id="last-eval-card" style="display: none;">
+                <div class="card-icon" style="background: #fef3c7; color: #d97706;">📊</div>
+                <h3>Últimos Resultados</h3>
+                <p>Revisa el mapa de telaraña y plan de mejora de tu evaluación más reciente.</p>
+                <div style="margin-top: auto; font-weight: 600; color: var(--primary);">Ver análisis →</div>
+            </a>
+
+            <a href="history.html" class="premium-card">
+                <div class="card-icon" style="background: #dcfce7; color: #166534;">📂</div>
+                <h3>Historial</h3>
+                <p>Accede a todas las evaluaciones guardadas en este dispositivo.</p>
+                <div style="margin-top: auto; font-weight: 600; color: var(--primary);">Explorar →</div>
+            </a>
+        </main>
+
+        <section style="margin-top: 4rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+            <div style="background: white; padding: 2rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
+                <h4 style="margin-bottom: 1rem; border-bottom: 2px solid var(--primary); display: inline-block;">Metodología CEITTO</h4>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">Basado en 7 dimensiones críticas: Propuesta de Valor, Mercado, Operación, Diseño, Comercialización, Sostenibilidad y Legal.</p>
+            </div>
+            <div style="background: white; padding: 2rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
+                <h4 style="margin-bottom: 1rem; border-bottom: 2px solid var(--secondary); display: inline-block;">Reportado a Consultoría</h4>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">Configurado para enviar reportes automáticos al Centro de Innovación y Transferencia Tecnológica.</p>
+            </div>
+        </section>
+    </div>
+
+    <nav class="floating-nav">
+        <a href="index.html" class="nav-link active">Inicio</a>
+        <a href="evaluation.html" class="nav-link">Evaluación</a>
+        <a href="history.html" class="nav-link">Historial</a>
+    </nav>
+
+    <script>
+        // Check if there's a last evaluation in localStorage
+        const latest = localStorage.getItem('eval_emprende_latest');
+        if (latest) {
+            document.getElementById('last-eval-card').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
